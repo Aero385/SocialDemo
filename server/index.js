@@ -1,15 +1,19 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import path from 'path';
-import multer from 'multer';
-import { fileURLToPath } from 'url';
-import authRoutes from './routes/auth.js';
-import { register } from '.controllers/auth.js';
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import multer from "multer";
+import helmet from "helmet";
+import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
+import { register } from "./controllers/auth.js";
+import { createPost } from "./controllers/posts.js";
+import { verifyToken } from "./middleware/auth.js";
 
 /* Configuration */
 const __filename = fileURLToPath(import.meta.url);
@@ -38,9 +42,12 @@ const upload = multer({storage});
 
 /* Rotes with file*/
 app.post('/auth/register', upload.single('picture'), register);
+app.post('/posts', verifyToken, upload.single('picture'), createPost);
 
 /*Routes */
 app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('./posts', postRoutes)
 
 /* Mongoose set up */
 const PORT = process.env.PORT || 6001;
